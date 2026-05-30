@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Planning Annuel</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f5f5f7;
+      --surf: #ffffff;
+      --surf2: #f0f0f3;
+      --brd: #d8d8e0;
+      --acc: #b8860b;
+      --acc2: #2563eb;
+      --acc3: #dc2626;
+      --grn: #16a34a;
+      --tx: #111118;
+      --txm: #555566;
+      --txd: #9090a8;
+      --r: 6px;
+      --ff: 'DM Mono', 'Courier New', monospace;
+      --ffd: 'DM Serif Display', Georgia, serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg); color: var(--tx);
+      color: var(--tx);
+      font-family: var(--ff);
+      font-size: 13px;
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 28px;
+      background: var(--surf);
+      border-bottom: 1px solid var(--brd);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .logo {
+      font-family: var(--ffd);
+      font-size: 20px;
+      color: var(--acc);
+      white-space: nowrap;
+    }
+    .logo em { font-style: italic; color: var(--txm); font-size: 13px; margin-left: 8px; }
+    .hdr-center {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 1;
+      max-width: 520px;
+    }
+    .search-wrap {
+      flex: 1;
+      position: relative;
+    }
+    .search-wrap svg {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      opacity: .45;
+      pointer-events: none;
+    }
+    .search-wrap input {
+      width: 100%;
+      padding-left: 32px;
+    }
+    .hdr-right { display: flex; gap: 8px; align-items: center; }
+
+    /* ── BUTTONS ── */
+    .btn {
+      font-family: var(--ff);
+      font-size: 11px;
+      font-weight: 500;
+      padding: 6px 13px;
+      border-radius: var(--r);
+      border: 1px solid var(--brd);
+      cursor: pointer;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      transition: all .15s;
+      white-space: nowrap;
+    }
+    .btn-ghost { background: transparent; color: var(--txm); }
+    .btn-ghost:hover { background: var(--surf2); color: var(--tx); }
+    .btn-acc { background: var(--acc); color: #0e0e11; border-color: var(--acc); }
+    .btn-acc:hover { background: #f5d660; }
+    .btn-blue { background: var(--acc2); color: #fff; border-color: var(--acc2); }
+    .btn-blue:hover { background: #7aa4f5; }
+    .btn-danger { background: transparent; color: var(--acc3); border-color: var(--acc3); }
+    .btn-danger:hover { background: var(--acc3); color: #fff; }
+    .btn-sm { padding: 4px 9px; font-size: 10px; }
+
+    /* ── INPUTS ── */
+    input, textarea, select {
+      background: var(--surf2);
+      border: 1px solid var(--brd);
+      color: var(--tx);
+      font-family: var(--ff);
+      font-size: 12px;
+      padding: 7px 10px;
+      border-radius: var(--r);
+      outline: none;
+      transition: border-color .15s;
+      width: 100%;
+    }
+    input:focus, textarea:focus, select:focus { border-color: var(--acc2); }
+    textarea { resize: vertical; line-height: 1.5; }
+
+    /* ── MAIN ── */
+    .main { padding: 24px 28px; max-width: 1100px; margin: 0 auto; }
+
+    /* ── SEARCH RESULTS PANEL ── */
+    .sr-panel {
+      display: none;
+      background: var(--surf);
+      border: 1px solid var(--brd);
+      border-radius: 8px;
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+    .sr-panel.open { display: block; }
+    .sr-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 9px 16px;
+      background: var(--surf2);
+      border-bottom: 1px solid var(--brd);
+    }
+    .sr-header span { font-size: 11px; color: var(--txm); letter-spacing: .05em; text-transform: uppercase; }
+    .sr-list { max-height: 240px; overflow-y: auto; }
+    .sr-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 9px 16px;
+      border-bottom: 1px solid var(--brd);
+      cursor: pointer;
+      transition: background .1s;
+    }
+    .sr-item:last-child { border: none; }
+    .sr-item:hover { background: var(--surf2); }
+    .sr-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+    .sr-body { flex: 1; min-width: 0; }
+    .sr-title { font-size: 13px; color: var(--tx); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .sr-meta { font-size: 11px; color: var(--txm); margin-top: 2px; }
+    .sr-comment { font-size: 11px; color: var(--txd); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .sr-cat {
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 8px;
+      flex-shrink: 0;
+      margin-top: 2px;
+      letter-spacing: .03em;
+    }
+    .no-results { padding: 20px; text-align: center; font-size: 12px; color: var(--txd); font-style: italic; }
+    mark { background: #e8c54740; color: var(--acc); border-radius: 2px; padding: 0 1px; }
+
+    /* ── CALENDAR NAV ── */
+    .cal-nav {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .cal-month {
+      font-family: var(--ffd);
+      font-size: 26px;
+      color: var(--tx);
+      min-width: 180px;
+    }
+    .cal-nav .btn-ghost { font-size: 16px; padding: 4px 11px; }
+
+    /* ── FILTER ROW ── */
+    .filter-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .filter-row select { max-width: 170px; font-size: 11px; }
+    .count-badge {
+      font-size: 11px;
+      color: var(--txm);
+      padding: 3px 10px;
+      background: var(--surf2);
+      border-radius: 10px;
+      border: 1px solid var(--brd);
+    }
+    .count-badge.active { color: var(--acc2); border-color: var(--acc2); background: #5b8af015; }
+
+    /* ── CALENDAR GRID ── */
+    .cal-head {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      margin-bottom: 6px;
+    }
+    .cal-head span {
+      text-align: center;
+      font-size: 11px;
+      color: var(--txd);
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      padding: 4px 0;
+    }
+    .cal-head span.wkend { color: var(--txm); }
+    .cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 4px;
+    }
+    .day {
+      min-height: 90px;
+      background: var(--surf);
+      border: 1px solid var(--brd);
+      border-radius: var(--r);
+      padding: 6px 7px;
+      cursor: pointer;
+      transition: border-color .15s;
+    }
+    .day:hover { border-color: var(--txd); }
+    .day.empty { background: transparent; border-color: transparent; cursor: default; pointer-events: none; }
+    .day.today { border-color: var(--acc2); border-width: 1.5px; }
+    .day.dimmed { opacity: .25; }
+    .dnum {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--txm);
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      margin-bottom: 4px;
+    }
+    .day.today .dnum { background: var(--acc2); color: #fff; }
+    .day.wkend .dnum { color: var(--txd); }
+    .chips { display: flex; flex-direction: column; gap: 2px; }
+    .chip {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 3px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      cursor: pointer;
+      line-height: 1.4;
+      transition: opacity .1s;
+    }
+    .chip:hover { opacity: .75; }
+    .chip.highlighted { outline: 1.5px solid currentColor; outline-offset: 1px; }
+    .chip.more { background: var(--surf2); color: var(--txm); font-size: 10px; }
+    .chip.c-blue   { background: #dbeafe; color: #1d4ed8; }
+    .chip.c-teal   { background: #d1fae5; color: #065f46; }
+    .chip.c-purple { background: #ede9fe; color: #4c1d95; }
+    .chip.c-coral  { background: #fee2e2; color: #991b1b; }
+    .chip.c-amber  { background: #fef3c7; color: #92400e; }
+    .chip.c-pink   { background: #fce7f3; color: #9d174d; }
+    .chip.c-green  { background: #dcfce7; color: #14532d; }
+
+    /* ── MODAL ── */
+    .overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(14,14,17,.8);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(3px);
+    }
+    .overlay.open { display: flex; }
+    .modal {
+      background: var(--surf);
+      border: 1px solid var(--brd);
+      border-radius: 10px;
+      padding: 24px 26px;
+      width: 440px;
+      max-width: 95vw;
+      max-height: 92vh;
+      overflow-y: auto;
+      position: relative;
+    }
+    .modal-title {
+      font-family: var(--ffd);
+      font-size: 18px;
+      color: var(--acc);
+      margin-bottom: 18px;
+    }
+    .modal-close {
+      position: absolute;
+      top: 14px; right: 16px;
+      background: none; border: none;
+      color: var(--txm); font-size: 18px;
+      cursor: pointer; line-height: 1;
+    }
+    .modal-close:hover { color: var(--tx); }
+    .fg { margin-bottom: 12px; }
+    .fg label {
+      display: block;
+      font-size: 10px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--txd);
+      margin-bottom: 4px;
+    }
+    .fg textarea { min-height: 64px; }
+    .modal-actions { display: flex; gap: 8px; margin-top: 18px; }
+    .modal-actions .btn { flex: 1; text-align: center; }
+
+    /* ── COLOR SWATCHES ── */
+    .swatches { display: flex; gap: 7px; flex-wrap: wrap; margin-top: 4px; }
+    .swatch {
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: transform .1s, border-color .1s;
+    }
+    .swatch:hover { transform: scale(1.2); }
+    .swatch.sel { border-color: var(--tx); }
+
+    /* ── DETAIL MODAL ── */
+    .detail-cat {
+      display: inline-block;
+      font-size: 11px;
+      padding: 2px 9px;
+      border-radius: 10px;
+      margin-bottom: 10px;
+      letter-spacing: .03em;
+    }
+    .detail-title { font-family: var(--ffd); font-size: 18px; color: var(--tx); margin-bottom: 6px; }
+    .detail-date { font-size: 12px; color: var(--txm); margin-bottom: 12px; }
+    .detail-comment {
+      font-size: 13px;
+      color: var(--tx);
+      line-height: 1.6;
+      background: var(--surf2);
+      border-radius: var(--r);
+      padding: 10px 12px;
+      margin-bottom: 10px;
+      border-left: 2px solid var(--brd);
+    }
+    .detail-link { font-size: 13px; color: var(--acc2); text-decoration: none; }
+    .detail-link:hover { text-decoration: underline; }
+
+    /* ── SYNC MODAL ── */
+    .sync-info {
+      background: var(--surf2);
+      border: 1px solid var(--brd);
+      border-radius: var(--r);
+      padding: 12px 14px;
+      margin-bottom: 16px;
+      font-size: 12px;
+      color: var(--txm);
+      line-height: 1.7;
+    }
+    .sync-info code { color: var(--acc2); font-family: var(--ff); }
+
+    /* ── TOAST ── */
+    .toast {
+      position: fixed;
+      bottom: 22px; right: 22px;
+      background: var(--surf2);
+      border: 1px solid var(--brd);
+      border-radius: 8px;
+      padding: 11px 16px;
+      font-size: 12px;
+      color: var(--tx);
+      transform: translateY(60px);
+      opacity: 0;
+      transition: all .3s cubic-bezier(.4,0,.2,1);
+      z-index: 300;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.ok  { border-left: 3px solid var(--grn); }
+    .toast.err { border-left: 3px solid var(--acc3); }
+    .toast.inf { border-left: 3px solid var(--acc2); }
+
+    @media (max-width: 700px) {
+      .main { padding: 14px; }
+      header { padding: 10px 14px; }
+      .hdr-center { max-width: none; }
+      .day { min-height: 64px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Planificateur<em>annuel</em></div>
+  <div class="hdr-center">
+    <div class="search-wrap">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" id="searchInput" placeholder="Rechercher une tâche, commentaire…" oninput="onSearch()">
+    </div>
+    <select id="filterCat" style="max-width:150px;font-size:11px" onchange="onSearch()">
+      <option value="">Toutes les catégories</option>
+    </select>
+  </div>
+  <div class="hdr-right">
+    <button class="btn btn-ghost" onclick="exportCSV()">↓ CSV</button>
+    <button class="btn btn-blue" onclick="openSyncModal()" style="display:inline-flex;align-items:center;gap:6px">
+      <span id="syncIndicator" style="width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.35);flex-shrink:0;transition:background .3s"></span>
+      ⟳ Sheets
+    </button>
+    <button class="btn btn-acc" onclick="openAdd()">+ Tâche</button>
+  </div>
+</header>
+
+<div class="main">
+
+  <!-- Search results -->
+  <div class="sr-panel" id="srPanel">
+    <div class="sr-header">
+      <span id="srLabel">0 résultat</span>
+      <button class="btn btn-ghost btn-sm" onclick="clearSearch()">✕ Effacer</button>
+    </div>
+    <div class="sr-list" id="srList"></div>
+  </div>
+
+  <!-- Calendar nav -->
+  <div class="cal-nav">
+    <button class="btn btn-ghost" onclick="move(-1)">‹</button>
+    <div class="cal-month" id="calMonth">Juin 2025</div>
+    <button class="btn btn-ghost" onclick="move(1)">›</button>
+    <button class="btn btn-ghost btn-sm" onclick="goToday()" style="margin-left:4px">Aujourd'hui</button>
+    <div id="countBadge" class="count-badge" style="display:none"></div>
+  </div>
+
+  <!-- Day names -->
+  <div class="cal-head">
+    <span>Lun</span><span>Mar</span><span>Mer</span><span>Jeu</span><span>Ven</span>
+    <span class="wkend">Sam</span><span class="wkend">Dim</span>
+  </div>
+
+  <!-- Grid -->
+  <div class="cal-grid" id="calGrid"></div>
+</div>
+
+<!-- ── TASK FORM MODAL ── -->
+<div class="overlay" id="taskOverlay">
+  <div class="modal">
+    <button class="modal-close" onclick="closeTaskModal()">✕</button>
+    <div class="modal-title" id="modalTitle">Nouvelle tâche</div>
+    <div class="fg"><label>Titre *</label><input type="text" id="f-title" placeholder="Nom de la tâche"></div>
+    <div class="fg"><label>Date *</label><input type="date" id="f-date"></div>
+    <div class="fg"><label>Catégorie</label><input type="text" id="f-cat" placeholder="ex: Réunion, Livraison, Client…"></div>
+    <div class="fg"><label>Commentaire</label><textarea id="f-comment" placeholder="Notes, contexte, détails…"></textarea></div>
+    <div class="fg"><label>Lien hypertexte</label><input type="text" id="f-url" placeholder="https://…"></div>
+    <div class="fg"><label>Libellé du lien</label><input type="text" id="f-urllabel" placeholder="ex: Voir le document"></div>
+    <div class="fg">
+      <label>Couleur</label>
+      <div class="swatches" id="swatches"></div>
+    </div>
+    <div class="fg" style="display:flex;align-items:center;gap:10px">
+      <input type="checkbox" id="f-done" style="width:auto;accent-color:var(--acc)">
+      <label style="display:inline;text-transform:none;font-size:12px;letter-spacing:0;margin:0;color:var(--txm)">Marquer comme terminée</label>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-acc" onclick="saveTask()">Enregistrer</button>
+      <button class="btn btn-danger" id="delBtn" style="display:none" onclick="deleteTask()">Supprimer</button>
+      <button class="btn btn-ghost" onclick="closeTaskModal()">Annuler</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── DETAIL MODAL ── -->
+<div class="overlay" id="detailOverlay">
+  <div class="modal">
+    <button class="modal-close" onclick="closeDetail()">✕</button>
+    <div id="det-cat" class="detail-cat"></div>
+    <div id="det-title" class="detail-title"></div>
+    <div id="det-date" class="detail-date"></div>
+    <div id="det-comment" class="detail-comment" style="display:none"></div>
+    <a id="det-link" class="detail-link" href="#" target="_blank" rel="noopener" style="display:none"></a>
+    <div class="modal-actions" style="margin-top:16px">
+      <button class="btn btn-ghost" onclick="editFromDetail()">✎ Modifier</button>
+      <button class="btn btn-danger btn-sm" onclick="deleteFromDetail()">Supprimer</button>
+      <button class="btn btn-ghost" onclick="closeDetail()">Fermer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── SYNC MODAL ── -->
+<div class="overlay" id="syncOverlay">
+  <div class="modal">
+    <button class="modal-close" onclick="closeSyncModal()">✕</button>
+    <div class="modal-title">⟳ Google Sheets</div>
+    <div class="sync-info">
+      <strong style="color:var(--tx)">URL du script Apps Script :</strong><br>
+      Collez l'URL de déploiement obtenue après avoir suivi le README.<br><br>
+      <span id="syncStatusLine" style="color:var(--txm);font-size:11px">Non configuré</span>
+    </div>
+    <div class="fg">
+      <label>URL du Web App (Apps Script)</label>
+      <input type="text" id="sm-url" placeholder="https://script.google.com/macros/s/…/exec">
+    </div>
+    <div class="fg">
+      <label>Synchronisation automatique</label>
+      <div style="display:flex;align-items:center;gap:10px;margin-top:4px">
+        <div id="autoSyncToggle" onclick="toggleAutoSync()" style="width:40px;height:22px;border-radius:11px;background:var(--brd);cursor:pointer;position:relative;transition:background .2s;flex-shrink:0">
+          <div id="autoSyncKnob" style="width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:2px;left:2px;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.3)"></div>
+        </div>
+        <span id="autoSyncLabel" style="font-size:12px;color:var(--txm)">Désactivée</span>
+        <select id="autoSyncInterval" style="max-width:130px;font-size:11px;padding:4px 7px" onchange="updateAutoSyncInterval()">
+          <option value="1">Toutes les minutes</option>
+          <option value="2">Toutes les 2 min</option>
+          <option value="5" selected>Toutes les 5 min</option>
+          <option value="10">Toutes les 10 min</option>
+          <option value="30">Toutes les 30 min</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-actions" style="flex-wrap:wrap;gap:8px">
+      <button class="btn btn-blue" style="flex:2" onclick="syncFromSheet()">↓ Importer depuis Sheets</button>
+      <button class="btn btn-acc" style="flex:2" onclick="syncToSheet()">↑ Envoyer vers Sheets</button>
+      <button class="btn btn-ghost" style="flex:1" onclick="closeSyncModal()">Fermer</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ─── CONFIG ─────────────────────────────────────────── */
+const MONTHS = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+
+const COLORS = [
+  { key:'c-blue',   bg:'#dbeafe', tx:'#1d4ed8', swatch:'#378ADD' },
+  { key:'c-teal',   bg:'#d1fae5', tx:'#065f46', swatch:'#1D9E75' },
+  { key:'c-purple', bg:'#ede9fe', tx:'#4c1d95', swatch:'#7F77DD' },
+  { key:'c-coral',  bg:'#fee2e2', tx:'#991b1b', swatch:'#D85A30' },
+  { key:'c-amber',  bg:'#fef3c7', tx:'#92400e', swatch:'#EF9F27' },
+  { key:'c-pink',   bg:'#fce7f3', tx:'#9d174d', swatch:'#D4537E' },
+  { key:'c-green',  bg:'#dcfce7', tx:'#14532d', swatch:'#639922' },
+];
+
+/* ─── STATE ──────────────────────────────────────────── */
+let cur = new Date(); cur.setDate(1);
+let tasks = [];
+let editId = null;
+let detailId = null;
+let selColor = 'c-blue';
+
+/* ─── PERSISTENCE ────────────────────────────────────── */
+function saveState() { localStorage.setItem('planner_v3', JSON.stringify(tasks)); }
+function loadState() {
+  const t = localStorage.getItem('planner_v3');
+  if (t) tasks = JSON.parse(t);
+}
+
+/* ─── HELPERS ────────────────────────────────────────── */
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2); }
+function pad(n) { return String(n).padStart(2,'0'); }
+function toDateStr(y,m,d) { return `${y}-${pad(m+1)}-${pad(d)}`; }
+function fmtDate(str) {
+  if (!str) return '';
+  return new Date(str + 'T00:00:00').toLocaleDateString('fr-FR', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+}
+function fmtShort(str) {
+  if (!str) return '';
+  return new Date(str + 'T00:00:00').toLocaleDateString('fr-FR', { day:'numeric', month:'short' });
+}
+function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function cdef(k) { return COLORS.find(c => c.key === k) || COLORS[0]; }
+function getQ() { return (document.getElementById('searchInput').value || '').trim().toLowerCase(); }
+function getCat() { return document.getElementById('filterCat').value; }
+
+function filterTasks(list) {
+  const q = getQ(), cat = getCat();
+  return list.filter(t => {
+    const mq = !q || (t.title||'').toLowerCase().includes(q) || (t.comment||'').toLowerCase().includes(q) || (t.cat||'').toLowerCase().includes(q);
+    const mc = !cat || (t.cat||'') === cat;
+    return mq && mc;
+  });
+}
+
+function highlight(str, q) {
+  if (!q || !str) return esc(str);
+  const re = new RegExp('(' + q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + ')', 'gi');
+  return esc(str).replace(re, '<mark>$1</mark>');
+}
+
+/* ─── SWATCHES ───────────────────────────────────────── */
+function buildSwatches(containerId) {
+  document.getElementById(containerId).innerHTML = COLORS.map(c =>
+    `<div class="swatch${selColor === c.key ? ' sel' : ''}" style="background:${c.swatch}" onclick="pickColor('${c.key}','${containerId}')"></div>`
+  ).join('');
+}
+function pickColor(k, containerId) { selColor = k; buildSwatches(containerId); }
+
+/* ─── CATEGORY FILTER ────────────────────────────────── */
+function updateCatFilter() {
+  const sel = document.getElementById('filterCat');
+  const cur = sel.value;
+  const cats = [...new Set(tasks.map(t => t.cat).filter(Boolean))].sort();
+  sel.innerHTML = '<option value="">Toutes les catégories</option>' +
+    cats.map(c => `<option${c === cur ? ' selected' : ''}>${esc(c)}</option>`).join('');
+}
+
+/* ─── SEARCH ─────────────────────────────────────────── */
+function onSearch() {
+  updateCatFilter();
+  const q = getQ(), cat = getCat();
+  const isActive = q || cat;
+  const matched = filterTasks(tasks).sort((a,b) => a.date.localeCompare(b.date));
+  const panel = document.getElementById('srPanel');
+  const badge = document.getElementById('countBadge');
+
+  if (isActive) {
+    panel.classList.add('open');
+    document.getElementById('srLabel').textContent = `${matched.length} résultat${matched.length !== 1 ? 's' : ''}`;
+    badge.textContent = matched.length + ' trouvée' + (matched.length !== 1 ? 's' : '');
+    badge.style.display = 'block';
+    badge.className = 'count-badge' + (matched.length > 0 ? ' active' : '');
+
+    if (matched.length === 0) {
+      document.getElementById('srList').innerHTML = `<div class="no-results">Aucune tâche trouvée pour cette recherche.</div>`;
+    } else {
+      document.getElementById('srList').innerHTML = matched.map(t => {
+        const cd = cdef(t.color);
+        return `<div class="sr-item" onclick="jumpTo('${t.id}')">
+          <div class="sr-dot" style="background:${cd.swatch}"></div>
+          <div class="sr-body">
+            <div class="sr-title">${highlight(t.title, q)}</div>
+            <div class="sr-meta">${fmtShort(t.date)}${t.cat ? ' · ' + esc(t.cat) : ''}${t.done ? ' · <span style="color:var(--grn)">✓ terminée</span>' : ''}</div>
+            ${t.comment ? `<div class="sr-comment">${highlight(t.comment, q)}</div>` : ''}
+          </div>
+          ${t.cat ? `<div class="sr-cat" style="background:${cd.bg};color:${cd.tx}">${esc(t.cat)}</div>` : ''}
+        </div>`;
+      }).join('');
+    }
+  } else {
+    panel.classList.remove('open');
+    badge.style.display = 'none';
+  }
+  renderCal();
+}
+
+function clearSearch() {
+  document.getElementById('searchInput').value = '';
+  document.getElementById('filterCat').value = '';
+  document.getElementById('srPanel').classList.remove('open');
+  document.getElementById('countBadge').style.display = 'none';
+  renderCal();
+}
+
+function jumpTo(id) {
+  const t = tasks.find(x => x.id === id);
+  if (!t) return;
+  const d = new Date(t.date + 'T00:00:00');
+  cur = new Date(d.getFullYear(), d.getMonth(), 1);
+  renderCal();
+  setTimeout(() => showDetail(null, id), 80);
+}
+
+/* ─── RENDER CALENDAR ────────────────────────────────── */
+function renderCal() {
+  const y = cur.getFullYear(), m = cur.getMonth();
+  document.getElementById('calMonth').textContent = `${MONTHS[m]} ${y}`;
+  const first = new Date(y, m, 1);
+  const lastD = new Date(y, m+1, 0).getDate();
+  const startDow = (first.getDay() + 6) % 7;
+  const today = new Date();
+  const q = getQ(), cat = getCat();
+  const isFiltered = q || cat;
+  const matchIds = isFiltered ? new Set(filterTasks(tasks).map(t => t.id)) : null;
+  const weeks = Math.ceil((startDow + lastD) / 7);
+  let html = '';
+  for (let i = 0; i < weeks * 7; i++) {
+    const d = i - startDow + 1;
+    if (d < 1 || d > lastD) { html += `<div class="day empty"></div>`; continue; }
+    const ds = toDateStr(y, m, d);
+    const isToday = today.getFullYear()===y && today.getMonth()===m && today.getDate()===d;
+    const dow7 = (new Date(y,m,d).getDay() + 6) % 7;
+    const isWk = dow7 >= 5;
+    const dayTasks = tasks.filter(t => t.date === ds);
+    const visTasks = isFiltered ? dayTasks.filter(t => matchIds.has(t.id)) : dayTasks;
+    const isDimmed = isFiltered && visTasks.length === 0 && dayTasks.length > 0;
+    let chips = '';
+    visTasks.slice(0,4).forEach(t => {
+      const hl = isFiltered ? ' highlighted' : '';
+      const done = t.done ? 'text-decoration:line-through;opacity:.6' : '';
+      chips += `<div class="chip ${t.color}${hl}" style="${done}" onclick="showDetail(event,'${t.id}')" title="${esc(t.title)}">${esc(t.title)}</div>`;
+    });
+    if (isFiltered && dayTasks.length > visTasks.length) {
+      const hidden = dayTasks.length - visTasks.length;
+      chips += `<div class="chip more">${hidden} masquée${hidden>1?'s':''}</div>`;
+    } else if (!isFiltered && dayTasks.length > 4) {
+      chips += `<div class="chip more">+${dayTasks.length - 4}</div>`;
+    }
+    html += `<div class="day${isToday?' today':''}${isWk?' wkend':''}${isDimmed?' dimmed':''}" onclick="clickDay('${ds}')">
+      <div class="dnum">${d}</div>
+      <div class="chips">${chips}</div>
+    </div>`;
+  }
+  document.getElementById('calGrid').innerHTML = html;
+}
+
+function move(n) { cur.setMonth(cur.getMonth() + n); renderCal(); }
+function goToday() { cur = new Date(); cur.setDate(1); renderCal(); }
+function clickDay(ds) { openAdd(ds); }
+
+/* ─── TASK FORM ──────────────────────────────────────── */
+function openAdd(prefillDate) {
+  editId = null;
+  document.getElementById('modalTitle').textContent = 'Nouvelle tâche';
+  document.getElementById('f-title').value = '';
+  document.getElementById('f-date').value = prefillDate || '';
+  document.getElementById('f-cat').value = '';
+  document.getElementById('f-comment').value = '';
+  document.getElementById('f-url').value = '';
+  document.getElementById('f-urllabel').value = '';
+  document.getElementById('f-done').checked = false;
+  document.getElementById('delBtn').style.display = 'none';
+  selColor = 'c-blue';
+  buildSwatches('swatches');
+  document.getElementById('taskOverlay').classList.add('open');
+  setTimeout(() => document.getElementById('f-title').focus(), 50);
+}
+
+function closeTaskModal() { document.getElementById('taskOverlay').classList.remove('open'); }
+
+function saveTask() {
+  const title = document.getElementById('f-title').value.trim();
+  const date = document.getElementById('f-date').value;
+  if (!title || !date) { showToast('Titre et date requis.', 'err'); return; }
+  const data = {
+    title, date,
+    cat: document.getElementById('f-cat').value.trim(),
+    comment: document.getElementById('f-comment').value.trim(),
+    url: document.getElementById('f-url').value.trim(),
+    urlLabel: document.getElementById('f-urllabel').value.trim(),
+    color: selColor,
+    done: document.getElementById('f-done').checked,
+  };
+  if (editId) {
+    const i = tasks.findIndex(t => t.id === editId);
+    if (i !== -1) tasks[i] = { ...tasks[i], ...data };
+    showToast('Tâche mise à jour ✓', 'ok');
+    pushTaskToSheet(tasks.find(t => t.id === editId));
+  } else {
+    const newTask = { id: uid(), ...data };
+    tasks.push(newTask);
+    showToast('Tâche ajoutée ✓', 'ok');
+    pushTaskToSheet(newTask);
+  }
+  saveState(); closeTaskModal(); updateCatFilter(); onSearch();
+}
+
+function deleteTask() {
+  if (!editId || !confirm('Supprimer cette tâche ?')) return;
+  deleteTaskFromSheet(editId);
+  tasks = tasks.filter(t => t.id !== editId);
+  saveState(); closeTaskModal(); showToast('Tâche supprimée.', 'inf'); onSearch();
+}
+
+/* ─── DETAIL ─────────────────────────────────────────── */
+function showDetail(e, id) {
+  if (e) e.stopPropagation();
+  const t = tasks.find(x => x.id === id);
+  if (!t) return;
+  detailId = id;
+  const cd = cdef(t.color);
+  const catEl = document.getElementById('det-cat');
+  catEl.textContent = t.cat || t.color.replace('c-','');
+  catEl.style.background = cd.bg; catEl.style.color = cd.tx;
+  document.getElementById('det-title').textContent = t.title;
+  document.getElementById('det-date').textContent = fmtDate(t.date) + (t.done ? ' · ✓ Terminée' : '');
+  const comm = document.getElementById('det-comment');
+  if (t.comment) { comm.textContent = t.comment; comm.style.display = 'block'; }
+  else comm.style.display = 'none';
+  const lnk = document.getElementById('det-link');
+  if (t.url) { lnk.href = t.url; lnk.textContent = t.urlLabel || t.url; lnk.style.display = 'block'; }
+  else lnk.style.display = 'none';
+  document.getElementById('detailOverlay').classList.add('open');
+}
+function closeDetail() { document.getElementById('detailOverlay').classList.remove('open'); }
+function editFromDetail() {
+  closeDetail();
+  const t = tasks.find(x => x.id === detailId);
+  if (!t) return;
+  editId = detailId;
+  document.getElementById('modalTitle').textContent = 'Modifier la tâche';
+  document.getElementById('f-title').value = t.title;
+  document.getElementById('f-date').value = t.date;
+  document.getElementById('f-cat').value = t.cat || '';
+  document.getElementById('f-comment').value = t.comment || '';
+  document.getElementById('f-url').value = t.url || '';
+  document.getElementById('f-urllabel').value = t.urlLabel || '';
+  document.getElementById('f-done').checked = !!t.done;
+  selColor = t.color || 'c-blue';
+  buildSwatches('swatches');
+  document.getElementById('delBtn').style.display = 'block';
+  document.getElementById('taskOverlay').classList.add('open');
+}
+function deleteFromDetail() {
+  if (!detailId || !confirm('Supprimer cette tâche ?')) return;
+  deleteTaskFromSheet(detailId);
+  tasks = tasks.filter(t => t.id !== detailId);
+  saveState(); closeDetail(); showToast('Tâche supprimée.', 'inf'); onSearch();
+}
+
+/* ─── SYNC GOOGLE SHEETS (bidirectionnel) ────────────── */
+function getScriptUrl() { return localStorage.getItem('script_url') || ''; }
+
+function closeSyncModal() { document.getElementById('syncOverlay').classList.remove('open'); }
+
+function saveScriptUrl() {
+  const url = document.getElementById('sm-url').value.trim();
+  if (url) localStorage.setItem('script_url', url);
+  return url;
+}
+
+/* ↓ Importer depuis Sheets → remplace les tâches locales */
+async function syncFromSheet() {
+  const scriptUrl = saveScriptUrl();
+  if (!scriptUrl) { showToast('Collez d\'abord l\'URL du script.', 'err'); return; }
+  closeSyncModal();
+  showToast('Importation depuis Sheets…', 'inf');
+  try {
+    const res = await fetch(scriptUrl + '?action=read');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    // Fusionner : garder locales absentes de Sheets, ajouter/MAJ celles de Sheets
+    const sheetIds = new Set(data.tasks.map(t => t.id));
+    const localOnly = tasks.filter(t => !sheetIds.has(t.id));
+    tasks = [...data.tasks.map(t => ({
+      ...t,
+      color: t.color.startsWith('c-') ? t.color : 'c-' + t.color,
+    })), ...localOnly];
+    saveState(); onSearch();
+    showToast(`✓ ${data.tasks.length} tâche${data.tasks.length!==1?'s':''} importée${data.tasks.length!==1?'s':''}.`, 'ok');
+  } catch(e) {
+    showToast('Erreur : ' + e.message, 'err');
+  }
+}
+
+/* ↑ Envoyer vers Sheets → écrase le contenu du Sheet */
+async function syncToSheet() {
+  const scriptUrl = saveScriptUrl();
+  if (!scriptUrl) { showToast('Collez d\'abord l\'URL du script.', 'err'); return; }
+  closeSyncModal();
+  showToast('Envoi vers Sheets…', 'inf');
+  try {
+    const res = await fetch(scriptUrl + '?action=sync', {
+      method: 'POST',
+      body: JSON.stringify(tasks),
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    showToast(`✓ ${data.count} tâche${data.count!==1?'s':''} envoyée${data.count!==1?'s':''} vers Sheets.`, 'ok');
+  } catch(e) {
+    showToast('Erreur : ' + e.message, 'err');
+  }
+}
+
+/* ↑ Écrire/MAJ une tâche unique vers Sheets */
+async function pushTaskToSheet(task) {
+  const scriptUrl = getScriptUrl();
+  if (!scriptUrl) return; // Pas configuré, on saute silencieusement
+  try {
+    await fetch(scriptUrl + '?action=write', {
+      method: 'POST',
+      body: JSON.stringify(task),
+    });
+  } catch(e) { /* silencieux en arrière-plan */ }
+}
+
+/* ↑ Supprimer une tâche dans Sheets */
+async function deleteTaskFromSheet(id) {
+  const scriptUrl = getScriptUrl();
+  if (!scriptUrl) return;
+  try {
+    await fetch(`${scriptUrl}?action=delete&id=${encodeURIComponent(id)}`);
+  } catch(e) { /* silencieux */ }
+}
+
+/* ─── EXPORT CSV ─────────────────────────────────────── */
+function exportCSV() {
+  const header = ['titre','date','catégorie','commentaire','url','label_url','couleur','terminée'];
+  const rows = tasks.map(t => [
+    t.title, t.date, t.cat||'', t.comment||'', t.url||'', t.urlLabel||'',
+    (t.color||'c-blue').replace('c-',''), t.done?'oui':'non'
+  ]);
+  const csv = [header, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,\uFEFF' + encodeURIComponent(csv);
+  const y = cur.getFullYear();
+  a.download = `planning_${y}.csv`;
+  a.click();
+  showToast('Export CSV téléchargé.', 'ok');
+}
+
+/* ─── TOAST ──────────────────────────────────────────── */
+let toastTimer;
+function showToast(msg, type='inf') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast ' + type + ' show';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 3200);
+}
+
+/* ─── KEYBOARD ───────────────────────────────────────── */
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    document.getElementById('taskOverlay').classList.remove('open');
+    document.getElementById('detailOverlay').classList.remove('open');
+    document.getElementById('syncOverlay').classList.remove('open');
+  }
+  if ((e.ctrlKey || e.metaKey) && e.key === 'n') { e.preventDefault(); openAdd(); }
+  if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+    e.preventDefault();
+    document.getElementById('searchInput').focus();
+    document.getElementById('searchInput').select();
+  }
+});
+
+/* ─── AUTO-SYNC ──────────────────────────────────────── */
+let autoSyncTimer = null;
+let autoSyncActive = false;
+let autoSyncIntervalMin = 5;
+
+function setSyncIndicator(state) {
+  // state: 'off' | 'on' | 'syncing' | 'ok' | 'err'
+  const dot = document.getElementById('syncIndicator');
+  if (!dot) return;
+  const colors = { off:'rgba(255,255,255,.25)', on:'#6ee7b7', syncing:'#fbbf24', ok:'#6ee7b7', err:'#fca5a5' };
+  dot.style.background = colors[state] || colors.off;
+  dot.style.boxShadow = (state === 'on' || state === 'ok') ? '0 0 5px #6ee7b7' : 'none';
+}
+
+function toggleAutoSync() {
+  autoSyncActive = !autoSyncActive;
+  localStorage.setItem('auto_sync', autoSyncActive ? '1' : '0');
+  applyAutoSync();
+}
+
+function applyAutoSync() {
+  const toggle = document.getElementById('autoSyncToggle');
+  const knob   = document.getElementById('autoSyncKnob');
+  const label  = document.getElementById('autoSyncLabel');
+
+  if (autoSyncActive) {
+    toggle.style.background = 'var(--acc2)';
+    knob.style.left = '20px';
+    label.textContent = 'Active — sync toutes les ' + autoSyncIntervalMin + ' min';
+    label.style.color = 'var(--acc2)';
+    setSyncIndicator('on');
+    startAutoSync();
+  } else {
+    toggle.style.background = 'var(--brd)';
+    knob.style.left = '2px';
+    label.textContent = 'Désactivée';
+    label.style.color = 'var(--txm)';
+    setSyncIndicator('off');
+    stopAutoSync();
+  }
+}
+
+function updateAutoSyncInterval() {
+  autoSyncIntervalMin = parseInt(document.getElementById('autoSyncInterval').value) || 5;
+  localStorage.setItem('auto_sync_interval', autoSyncIntervalMin);
+  if (autoSyncActive) {
+    stopAutoSync();
+    startAutoSync();
+    document.getElementById('autoSyncLabel').textContent = 'Active — sync toutes les ' + autoSyncIntervalMin + ' min';
+  }
+}
+
+function startAutoSync() {
+  stopAutoSync();
+  const ms = autoSyncIntervalMin * 60 * 1000;
+  autoSyncTimer = setInterval(autoSyncTick, ms);
+  // Première sync immédiate au démarrage si URL configurée
+  if (getScriptUrl()) autoSyncTick();
+}
+
+function stopAutoSync() {
+  if (autoSyncTimer) { clearInterval(autoSyncTimer); autoSyncTimer = null; }
+}
+
+async function autoSyncTick() {
+  const scriptUrl = getScriptUrl();
+  if (!scriptUrl) return;
+  setSyncIndicator('syncing');
+  try {
+    const res = await fetch(scriptUrl + '?action=read');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+
+    // Fusionner silencieusement : Sheets a la priorité
+    const sheetIds  = new Set(data.tasks.map(t => t.id));
+    const localOnly = tasks.filter(t => !sheetIds.has(t.id));
+    const merged    = [
+      ...data.tasks.map(t => ({ ...t, color: t.color.startsWith('c-') ? t.color : 'c-' + t.color })),
+      ...localOnly,
+    ];
+
+    // Ne re-rendre que si les données ont changé
+    const before = JSON.stringify(tasks);
+    const after  = JSON.stringify(merged);
+    if (before !== after) {
+      tasks = merged;
+      saveState();
+      onSearch();
+    }
+    setSyncIndicator('ok');
+    // Revenir à "on" après 2s
+    setTimeout(() => { if (autoSyncActive) setSyncIndicator('on'); }, 2000);
+  } catch(e) {
+    setSyncIndicator('err');
+    setTimeout(() => { if (autoSyncActive) setSyncIndicator('on'); }, 4000);
+  }
+}
+
+function openSyncModal() {
+  const url = getScriptUrl();
+  document.getElementById('sm-url').value = url;
+  // Restaurer l'intervalle sauvegardé
+  const savedInterval = parseInt(localStorage.getItem('auto_sync_interval')) || 5;
+  autoSyncIntervalMin = savedInterval;
+  document.getElementById('autoSyncInterval').value = savedInterval;
+  // Restaurer l'état du toggle
+  const toggleEl = document.getElementById('autoSyncToggle');
+  const knobEl   = document.getElementById('autoSyncKnob');
+  const labelEl  = document.getElementById('autoSyncLabel');
+  if (autoSyncActive) {
+    toggleEl.style.background = 'var(--acc2)';
+    knobEl.style.left = '20px';
+    labelEl.textContent = 'Active — sync toutes les ' + autoSyncIntervalMin + ' min';
+    labelEl.style.color = 'var(--acc2)';
+  } else {
+    toggleEl.style.background = 'var(--brd)';
+    knobEl.style.left = '2px';
+    labelEl.textContent = 'Désactivée';
+    labelEl.style.color = 'var(--txm)';
+  }
+  const status = document.getElementById('syncStatusLine');
+  status.textContent = url ? '✓ URL configurée' : 'Non configuré — collez l\'URL ci-dessous';
+  status.style.color  = url ? 'var(--grn)' : 'var(--txm)';
+  document.getElementById('syncOverlay').classList.add('open');
+}
+
+/* ─── INIT ───────────────────────────────────────────── */
+loadState();
+buildSwatches('swatches');
+updateCatFilter();
+renderCal();
+
+// Restaurer URL et auto-sync
+const savedUrl = localStorage.getItem('script_url');
+if (savedUrl) document.getElementById('sm-url').value = savedUrl;
+
+autoSyncIntervalMin = parseInt(localStorage.getItem('auto_sync_interval')) || 5;
+autoSyncActive = localStorage.getItem('auto_sync') === '1';
+applyAutoSync();
+</script>
+</body>
+</html>
